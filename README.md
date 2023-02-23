@@ -1,2 +1,3 @@
 # StoryGenius
-COEN396 Final Project
+COEN396 Final Project. \
+TODO: Update this.
