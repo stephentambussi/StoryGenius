@@ -15,6 +15,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import TextField from '@mui/material/TextField';
+import Highlightable, { Node } from 'highlightable';
 import 'animate.css/animate.min.css';
 /*  TODOs
 *   - see todos in code
@@ -193,7 +194,7 @@ class App extends React.Component {
                   onChange={(event) => {
                     this.setState({ userEditorText: event.target.value });
                     this.setState({ storytext_cnt: Math.floor(event.target.value.length / 4) }); /* TODO: make this word count and calculate max word count allowed based on tokens? */
-                  }}></TextField>
+                  }}></TextField> 
               </div>
 
               <div className="AIEditor">
@@ -236,6 +237,8 @@ class App extends React.Component {
             </div>
 
             <label htmlFor="story_textbox" name="StoryTextBoxTitle"><b>Tokens: {this.state.storytext_cnt} / {this.state.tokens_remaining}</b></label>
+
+            
 
           </div>
 
