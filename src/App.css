@@ -17,18 +17,34 @@
   background-color: #282c34;
   min-height: 10vh;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
   font-size: calc(4px + 2vmin);
   color: white;
 }
 
-.App-header h1 {
+.Notification {
+  position: fixed;
+  top: 25px;
+  left: 0;
+  z-index: 9999;
+}
+
+.App-subheader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-left: 15%;
+  margin-right: 10%;
+}
+
+.App-subheader h1 {
   margin: 0;
 }
 
-.App-header h2 {
+.App-subheader h2 {
   margin: 0;
 }
 
@@ -60,23 +76,33 @@ a:active {
   color: teal;
 }
 
-.Notification {
-  position: fixed;
-  top: 25px;
-  left: 0;
-  z-index: 9999;
-}
-
-.header-btn {
-  font-size: 16px;
-  height: 40px;
-  width: 115px;
-}
-
 .StoryTemplate {
-  background-color: #c5c7c6;
+  background-color: #f2eecb;
   border: 3px solid rgb(80, 78, 78);
-  
+}
+
+.StoryPartition {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+.CenterPartition {
+  width: 100%;
+  margin-left: 5%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.GenerationButtons {
+  display: flex;
+  margin-bottom: 22%;
+  margin-right: 5%;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .ImageBox {
@@ -98,7 +124,7 @@ a:active {
   display: inline-block;
   width: 512px;
   height: 260px;
-  background: orange;
+  background: rgb(80, 78, 78);
   border: #282c34;
   border-width: 2px;
 }
@@ -108,53 +134,99 @@ a:active {
   justify-content: center;
 }
 
-.TextEditor {
+.Editor {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.TextEditors {
+  width: 100%;
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: center;
 }
 
-.generationButtons {
+.UserEditor {
+  width: 100%;
   display: flex;
   flex-direction: column;
+  align-items: center;
   justify-content: center;
 }
 
-.genBtnHeader {
-  margin: 0;
-}
-
-.IdeaGen {
-  margin: 5px;
-}
-
-.PartialGen {
-  margin: 5px;
-}
-
-.CompleteGen {
-  margin: 5px;
-}
-
-.editingButtons {
+.UserEditorHeader {
+  font-size: calc(6px + 2vmin);
+  margin-bottom: 0;
   display: flex;
-  flex-direction: column;
+  align-items: center;
   justify-content: center;
 }
 
-.editBtnHeader {
-  margin: 0;
+.AIEditorHeader {
+  font-size: calc(6px + 2vmin);
+  margin-bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.ToneEdit {
-  margin: 5px;
+.AIEditor {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
-.GenreEdit {
-  margin: 5px;
+.EditingOptions {
+  width: 100%;
+  background: #f1e8a5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
-.ErrorEdit {
-  margin: 5px;
+.OptionsHeader {
+  font-size: calc(6px + 2vmin);
+  margin-top: 0;
+  margin-bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.OptionsSubHeader {
+  margin-top: 0;
+  margin-bottom: 1;
+}
+
+.CommandPrompt {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.ExamplesHeader {
+  font-size: calc(6px + 2vmin);
+  margin-top: 0;
+  margin-bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ExamplesSubHeader {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.ExamplesSubHeaderT {
+  margin-top: 0;
+  margin-bottom: 1;
 }
