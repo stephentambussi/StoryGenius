@@ -15,24 +15,146 @@
 
 .App-header {
   background-color: #282c34;
-  min-height: 100vh;
+  min-height: 10vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
+  font-size: calc(4px + 2vmin);
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
+.App-header h1 {
+  margin: 0;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.App-header h2 {
+  margin: 0;
+}
+
+.SubTitle {
+  font-size: calc(8px + 2vmin);
+}
+
+a {
+  text-decoration: none;
+}
+
+a:link {
+  color: yellow;
+}
+
+a:visited {
+  text-decoration: none;
+  color: orange;
+}
+
+a:hover {
+  text-decoration: none;
+  border-bottom: 2px solid;
+  color: darkorange;
+}
+
+a:active {
+  text-decoration: none;
+  color: teal;
+}
+
+.Notification {
+  position: fixed;
+  top: 25px;
+  left: 0;
+  z-index: 9999;
+}
+
+.header-btn {
+  font-size: 16px;
+  height: 40px;
+  width: 115px;
+}
+
+.StoryTemplate {
+  background-color: #c5c7c6;
+  border: 3px solid rgb(80, 78, 78);
+  
+}
+
+.ImageBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.ImageBoxHeader {
+  font-size: calc(6px + 2vmin);
+  margin-bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.frame {
+  display: inline-block;
+  width: 512px;
+  height: 260px;
+  background: orange;
+  border: #282c34;
+  border-width: 2px;
+}
+
+.promptArea {
+  display: flex;
+  justify-content: center;
+}
+
+.TextEditor {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+.generationButtons {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.genBtnHeader {
+  margin: 0;
+}
+
+.IdeaGen {
+  margin: 5px;
+}
+
+.PartialGen {
+  margin: 5px;
+}
+
+.CompleteGen {
+  margin: 5px;
+}
+
+.editingButtons {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.editBtnHeader {
+  margin: 0;
+}
+
+.ToneEdit {
+  margin: 5px;
+}
+
+.GenreEdit {
+  margin: 5px;
+}
+
+.ErrorEdit {
+  margin: 5px;
 }
