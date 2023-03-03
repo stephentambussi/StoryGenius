@@ -78,7 +78,11 @@ a:active {
 .genLoading {
   width: 85px;
   height: 71px;
-  margin-left: 2%;
+  margin-left: 3%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .StoryTemplate {
@@ -253,6 +257,16 @@ a:active {
   width: 100%;
   display: flex;
   flex-direction: row;
+  justify-content: center;
+}
+
+.editLoading {
+  margin-left: 1%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
 }
 

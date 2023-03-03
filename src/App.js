@@ -15,7 +15,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import TextField from '@mui/material/TextField';
-import { Audio } from 'react-loader-spinner';
+import { RotatingLines } from 'react-loader-spinner';
 import 'animate.css/animate.min.css';
 /*  TODOs
 *   - see todos in code
@@ -51,7 +51,7 @@ class App extends React.Component {
       finalize: false,
       ideaGen: false,
       completeGen: false,
-      genLoading: true,
+      genLoading: false,
       editLoading: false,
       imageURL: '',
       // images: [], //TODO: this is a stretch goal, but save images to array and allow user to go back to previously generated ones
@@ -78,10 +78,12 @@ class App extends React.Component {
 
     /* Example chatgpt get response code
     if(....) {
+      this.setState({genLoading: true})
       const response = await openai.createChatCompletion({
         model: "gpt-3.5-turbo",
         messages: [{role: "user", content: "Prompt here"}],
       });
+      this.setState({genLoading: false})
       this.setState({storyTitle: this.state.storyTitle + response.data.choices[0].message});
     }
     */
@@ -122,11 +124,13 @@ class App extends React.Component {
           <ReactNotifications className="Notification" /> {/* TODO: update notification to be nicer */}
           <div className="genLoading">
             {genLoading &&    //Conditional rendering
-              <Audio
-                height="70"
-                width="70"
-                color='orange'
-              ></Audio>
+              <div>
+                <RotatingLines
+                  strokeColor="orange"
+                  strokeWidth="4"
+                  width="65"
+                ></RotatingLines>
+              </div>
             }
           </div>
 
@@ -266,10 +270,22 @@ class App extends React.Component {
                     maxWidth: '50%',
                     bgcolor: 'white',
                     marginBottom: 2,
+                    marginLeft: 2,
                   }}
                   value={this.state.editPrompt}
                   onChange={(event) => this.setState({ editPrompt: event.target.value })}></TextField>
                 <Button size="small" sx={{ color: 'white', bgcolor: 'gray', marginBottom: 2, }} variant="contained" onClick={() => this.setState({ editGen: !this.state.editGen })}>Edit</Button>
+                <div className="editLoading">
+                  {editLoading &&
+                    <div>
+                      <RotatingLines
+                        strokeColor="black"
+                        strokeWidth="4"
+                        width="40"
+                      ></RotatingLines>
+                    </div>
+                  }
+                </div>
               </div>
 
               <h2 className="ExamplesHeader">Example Commands</h2>
