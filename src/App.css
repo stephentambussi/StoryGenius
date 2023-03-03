@@ -155,13 +155,17 @@ a:active {
   justify-content: center;
 }
 
-.frame {
-  display: inline-block;
+.outerFrame {
   width: 512px;
   height: 260px;
-  background: rgb(80, 78, 78);
-  border: #282c34;
-  border-width: 2px;
+  background-color: #f1e8a5;
+}
+
+.frame {
+  display: inline-block;
+  width: 256px;
+  height: 256px;
+  border: 2px solid rgb(80, 78, 78);
 }
 
 .promptArea {
@@ -199,10 +203,6 @@ a:active {
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.highlightColor {
-  background-color: #e06f6f;
 }
 
 .AIEditorHeader {

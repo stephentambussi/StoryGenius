@@ -50,18 +50,22 @@ class App extends React.Component {
       aiEditorText: '',
       storytext_cnt: 0,
       imagePrompt: '',
-      imagePromptGen: false,
       helpOpen: false,
       editPrompt: '',
-      editGen: false,
-      finalize: false,
-      ideaGen: false,
-      completeGen: false,
-      genLoading: false,
+      finalize: false, //MAYBE change to enum?
+      genLoading: false, //Variables to enable rendering of loading icons
       editLoading: false,
       imageURL: '',
       // images: [], //TODO: this is a stretch goal, but save images to array and allow user to go back to previously generated ones
     };
+
+    //Enums for button
+    this.Buttons = {
+      imageGen: 0,
+      ideaGen: 1,
+      completeGen: 2,
+      editGen: 3
+    }
 
     //Fun variables
     this.highlightedText = "";
@@ -73,13 +77,18 @@ class App extends React.Component {
     const { Configuration, OpenAIApi } = require("openai");
     const configuration = new Configuration({
       //Insert your OpenAI API Key here to try this out
-      apiKey: 'API Key',
+      //apiKey: 'API Key',
+      apiKey: process.env.REACT_APP_OPENAI_API_KEY,
     });
     const openai = new OpenAIApi(configuration);
+
+    /*
     if (this.state.userEditorText === '') {
       alert('TODO: make error');
       return;
     }
+    */
+
     //TODO: conditionals for specific button presses and image generation
 
     /* Example chatgpt get response code
@@ -94,16 +103,19 @@ class App extends React.Component {
     }
     */
 
-    /* Example DALLE generate code
-    if(....) {
+    //DALLE generate code
+    //TODO: update this conditional so that it handles all cases outlined in planning document
+    if (button_num === this.Buttons.imageGen) {
+      //console.log(button_num);
+      this.setState({genLoading: true});
       const response = await openai.createImage({
-        prompt: "image gen prompt",
+        prompt: this.state.imagePrompt,
         n: 1, //num of images to generate
         size: "256x256",
       });
-      this.setState({imageURL: response.data.data[0].url});
+      this.setState({ imageURL: response.data.data[0].url });
+      this.setState({ genLoading: false });
     }
-    */
   }
 
   render() {
@@ -115,8 +127,8 @@ class App extends React.Component {
     const genLoading = this.state.genLoading;
     const editLoading = this.state.editLoading;
 
-    if(sessionStorage.getItem("storyTitleAutosave")) {
-      this.state.storyTitle = sessionStorage.getItem("storyTitleAutosave"); //TODO: change to setState
+    if (sessionStorage.getItem("storyTitleAutosave")) {
+      this.state.storyTitle = sessionStorage.getItem("storyTitleAutosave");
     }
 
     //Checks to see if there is an autosave value
@@ -124,7 +136,7 @@ class App extends React.Component {
     //(Enables semi-persistence for user work, but does not persist if tab/window is closed)
     if (sessionStorage.getItem("editorAutosave")) {
       //Restore contents of Editor Textfield
-      this.state.userEditorText = sessionStorage.getItem("editorAutosave"); //TODO: change to setState
+      this.state.userEditorText = sessionStorage.getItem("editorAutosave");
     }
 
     //Event listener function for selecting/highlighting text
@@ -207,11 +219,29 @@ class App extends React.Component {
 
                 <div className="GenerationButtonsSub">
                   <Tooltip TransitionComponent={Zoom} title={ideaGenTooltip}>
-                    <Button sx={{ color: 'white', bgcolor: 'gray', marginRight: 1, }} variant="contained" onClick={() => this.setState({ ideaGen: !this.state.ideaGen })}>Idea</Button>
+                    <Button
+                      sx={{
+                        color: 'white',
+                        bgcolor: 'gray',
+                        marginRight: 1,
+                      }}
+                      variant="contained"
+                      onClick={() => {
+                        console.log(this.Buttons.ideaGen);
+                      }}>Idea</Button>
                   </Tooltip>
 
                   <Tooltip TransitionComponent={Zoom} title={storyGenTooltip}>
-                    <Button sx={{ color: 'white', bgcolor: 'gray', marginLeft: 1, }} variant="contained" onClick={() => this.setState({ completeGen: !this.state.completeGen })}>Story</Button>
+                    <Button
+                      sx={{
+                        color: 'white',
+                        bgcolor: 'gray',
+                        marginLeft: 1,
+                      }}
+                      variant="contained"
+                      onClick={() => {
+                        console.log(this.Buttons.completeGen);
+                      }}>Story</Button>
                   </Tooltip>
                 </div>
 
@@ -223,8 +253,10 @@ class App extends React.Component {
 
               <h2 className="ImageBoxHeader">Image</h2>
 
-              <div className="frame">
-                {/* TODO: Add image here after being generated */}
+              <div className="outerFrame">
+                <div className="frame">
+                  <img id="img" src={this.state.imageURL} alt=""></img>
+                </div>
               </div>
 
               <div className="promptArea">
@@ -238,7 +270,17 @@ class App extends React.Component {
                   value={this.state.imagePrompt}
                   onChange={(event) => this.setState({ imagePrompt: event.target.value })}></TextField>
                 <Tooltip TransitionComponent={Zoom} title={imagePromptGenTooltip}>
-                  <Button size="small" sx={{ color: 'white', bgcolor: 'gray', marginTop: 1, }} variant="contained" onClick={() => this.setState({ imagePromptGen: !this.state.imagePromptGen })}>Generate</Button>
+                  <Button size="small"
+                    sx={{
+                      color: 'white',
+                      bgcolor: 'gray',
+                      marginTop: 1,
+                    }}
+                    variant="contained"
+                    onClick={() => {
+                      //console.log(this.Buttons.imageGen)
+                      this.getAIResponse(this.Buttons.imageGen);
+                    }}>Generate</Button>
                 </Tooltip>
               </div>
 
@@ -262,7 +304,7 @@ class App extends React.Component {
                     this.setState({ userEditorText: event.target.value });
                     //Save results into session storage object for semi-persistence
                     sessionStorage.setItem("editorAutosave", event.target.value);
-                    
+
                     this.setState({ storytext_cnt: Math.floor(event.target.value.length / 4) }); /* TODO: make this word count and calculate max word count allowed based on tokens? */
                   }}></TextField>
 
@@ -299,7 +341,16 @@ class App extends React.Component {
                   }}
                   value={this.state.editPrompt}
                   onChange={(event) => this.setState({ editPrompt: event.target.value })}></TextField>
-                <Button size="small" sx={{ color: 'white', bgcolor: 'gray', marginBottom: 2, }} variant="contained" onClick={() => this.setState({ editGen: !this.state.editGen })}>Edit</Button>
+                <Button size="small"
+                  sx={{
+                    color: 'white',
+                    bgcolor: 'gray',
+                    marginBottom: 2,
+                  }}
+                  variant="contained"
+                  onClick={() => {
+                    console.log(this.Buttons.editGen);
+                  }}>Edit</Button>
                 <div className="editLoading">
                   {editLoading &&
                     <div>
