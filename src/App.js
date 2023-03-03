@@ -22,7 +22,13 @@ import 'animate.css/animate.min.css';
 *   - Include notification only for errors like: missing api key, etc.
 */
 
-//Global functions
+/*  Implementation notes:
+*   Everything that makes StoryGenius work is in this file such as the UI components, logic, and API calls. 
+*   App.css includes styling to make it look the way I wanted it to. There is definitely a better way to do
+*   all of this, but it works.
+*/
+
+//Gets and returns the selected/highlighted text in the current window 
 function getSelectionText() {
   var text = "";
   if (window.getSelection) {
@@ -31,7 +37,7 @@ function getSelectionText() {
   return text;
 }
 
-//Class
+//Main Class
 class App extends React.Component {
   constructor(props) {
     super(props);
@@ -105,12 +111,25 @@ class App extends React.Component {
     const ideaGenTooltip = 'Create a story idea. NOTE: this will clear any previous generations';
     const storyGenTooltip = 'Generate a complete story. NOTE: this will clear any previous generations';
     const imagePromptGenTooltip = 'Generate an image from the prompt OR if it is empty, generate a prompt and image from available text';
+    //Booleans for loading icons
     const genLoading = this.state.genLoading;
     const editLoading = this.state.editLoading;
 
+    if(sessionStorage.getItem("storyTitleAutosave")) {
+      this.state.storyTitle = sessionStorage.getItem("storyTitleAutosave");
+    }
+
+    //Checks to see if there is an autosave value
+    //This only happens when there is a page reload or restore
+    //(Enables semi-persistence for user work, but does not persist if tab/window is closed)
+    if (sessionStorage.getItem("editorAutosave")) {
+      //Restore contents of Editor Textfield
+      this.state.userEditorText = sessionStorage.getItem("editorAutosave");
+    }
+
+    //Event listener function for selecting/highlighting text
     document.onmouseup = document.onkeyup = document.onselectionchange = function () {
-      if (document.activeElement.id === "editorWindow") { //Only the editor window can select and capture text
-        //document.getElementById("selectedText").value = getSelectionText();
+      if (document.activeElement.id === "editorWindow") { //Only the editor window/textfield can select and capture text
         this.highlightedText = getSelectionText();
         document.getElementById("selectedText").value = this.highlightedText;
       }
@@ -176,7 +195,10 @@ class App extends React.Component {
                   maxWidth: '100%',
                 }}
                 value={this.state.storyTitle}
-                onChange={(event) => this.setState({ storyTitle: event.target.value })}></TextField>
+                onChange={(event) => {
+                  this.setState({ storyTitle: event.target.value })
+                  sessionStorage.setItem("storyTitleAutosave", event.target.value);
+                }}></TextField>
 
 
               <div className="GenerationButtons">
@@ -238,6 +260,9 @@ class App extends React.Component {
                   value={this.state.userEditorText}
                   onChange={(event) => {
                     this.setState({ userEditorText: event.target.value });
+                    //Save results into session storage object for semi-persistence
+                    sessionStorage.setItem("editorAutosave", event.target.value);
+                    
                     this.setState({ storytext_cnt: Math.floor(event.target.value.length / 4) }); /* TODO: make this word count and calculate max word count allowed based on tokens? */
                   }}></TextField>
 
@@ -289,10 +314,10 @@ class App extends React.Component {
               </div>
 
               <h2 className="ExamplesHeader">Example Commands</h2>
-              <p className="ExamplesSubHeader"><b>Grammar: </b><i>"remove any grammatical errors."</i></p>
-              <p className="ExamplesSubHeader"><b>Genre: </b><i>"change this story's genre to horror."</i></p>
-              <p className="ExamplesSubHeader"><b>Tone: </b><i>"rewrite this sentence in a rude tone."</i></p>
-              <p className="ExamplesSubHeaderT"><b>Finish Story: </b><i>"add an ending to this story."</i></p>
+              <p className="ExamplesSubHeader"><i>"Remove any grammatical errors."</i></p>
+              <p className="ExamplesSubHeader"><i>"Change this story's genre to horror."</i></p>
+              <p className="ExamplesSubHeader"><i>"Rewrite this sentence in a rude tone."</i></p>
+              <p className="ExamplesSubHeaderT"><i>"Add an ending to this story."</i></p>
 
             </div>
 
