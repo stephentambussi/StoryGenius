@@ -116,7 +116,7 @@ class App extends React.Component {
     const editLoading = this.state.editLoading;
 
     if(sessionStorage.getItem("storyTitleAutosave")) {
-      this.state.storyTitle = sessionStorage.getItem("storyTitleAutosave");
+      this.state.storyTitle = sessionStorage.getItem("storyTitleAutosave"); //TODO: change to setState
     }
 
     //Checks to see if there is an autosave value
@@ -124,7 +124,7 @@ class App extends React.Component {
     //(Enables semi-persistence for user work, but does not persist if tab/window is closed)
     if (sessionStorage.getItem("editorAutosave")) {
       //Restore contents of Editor Textfield
-      this.state.userEditorText = sessionStorage.getItem("editorAutosave");
+      this.state.userEditorText = sessionStorage.getItem("editorAutosave"); //TODO: change to setState
     }
 
     //Event listener function for selecting/highlighting text
