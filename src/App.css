@@ -36,8 +36,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  margin-left: 15%;
-  margin-right: 10%;
+  width: 100%;
 }
 
 .App-subheader h1 {
@@ -76,6 +75,12 @@ a:active {
   color: teal;
 }
 
+.genLoading {
+  width: 85px;
+  height: 71px;
+  margin-left: 2%;
+}
+
 .StoryTemplate {
   background-color: #f2eecb;
   border: 3px solid rgb(80, 78, 78);
@@ -83,25 +88,51 @@ a:active {
 
 .StoryPartition {
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.TopPartition {
+  display: flex;
+  width: 100%;
+  margin-top: 1%;
   flex-direction: row;
   align-items: center;
   justify-content: center;
 }
 
-.CenterPartition {
-  width: 100%;
-  margin-left: 5%;
+.finalizeBtn {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
+  margin-left: 2%;
+  margin-right: 10%;
 }
 
 .GenerationButtons {
   display: flex;
-  margin-bottom: 22%;
-  margin-right: 5%;
   flex-direction: column;
+  justify-content: center;
+  margin-left: 4%;
+  margin-right: 2%;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.generationButtonsHeader {
+  font-size: calc(4px + 2vmin);
+  margin-top: 0;
+  margin-bottom: 2%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.GenerationButtonsSub {
+  display: flex;
+  flex-direction: row;
   justify-content: center;
 }
 
@@ -166,6 +197,10 @@ a:active {
   justify-content: center;
 }
 
+.highlightColor {
+  background-color: #e06f6f;
+}
+
 .AIEditorHeader {
   font-size: calc(6px + 2vmin);
   margin-bottom: 0;
@@ -203,6 +238,15 @@ a:active {
 .OptionsSubHeader {
   margin-top: 0;
   margin-bottom: 1;
+}
+
+.selectedText {
+  margin-bottom: 0.5%;
+  resize: none;
+  border: 0px;
+  background-color: #f1e8a5;
+  font-style: italic;
+  color: black;
 }
 
 .CommandPrompt {

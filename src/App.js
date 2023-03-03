@@ -15,14 +15,23 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import TextField from '@mui/material/TextField';
-import Highlightable, { Node } from 'highlightable';
-import { Map, List } from 'immutable';
+import { Audio } from 'react-loader-spinner';
 import 'animate.css/animate.min.css';
 /*  TODOs
 *   - see todos in code
-*   - figure out how to get notifications only in specific areas of website
-*   - figure out how to capture highlighted section and modify with GPT
+*   - Include notification only for errors like: missing api key, etc.
 */
+
+//Global functions
+function getSelectionText() {
+  var text = "";
+  if (window.getSelection) {
+    text = window.getSelection().toString();
+  }
+  return text;
+}
+
+//Class
 class App extends React.Component {
   constructor(props) {
     super(props);
@@ -42,18 +51,15 @@ class App extends React.Component {
       finalize: false,
       ideaGen: false,
       completeGen: false,
+      genLoading: true,
+      editLoading: false,
       imageURL: '',
       // images: [], //TODO: this is a stretch goal, but save images to array and allow user to go back to previously generated ones
     };
-  }
 
-  onTextHighlighted(range) {
-    this.props.highlightRange(range);
-    window.getSelection().removeAllRanges();
-  }
+    //Fun variables
+    this.highlightedText = "";
 
-  resetHightlight(range) {
-    this.props.removeHighlightRange(range);
   }
 
   //Method to use OpenAI API to call ChatGPT (GPT3.5) and DALL-E 2
@@ -93,22 +99,42 @@ class App extends React.Component {
   }
 
   render() {
-    // const traitstatus = this.state.traitstatus;
     const finalizeTooltip = 'Collect the current story title, image, and text in the Editor window and download to PDF';
     const ideaGenTooltip = 'Create a story idea. NOTE: this will clear any previous generations';
     const storyGenTooltip = 'Generate a complete story. NOTE: this will clear any previous generations';
     const imagePromptGenTooltip = 'Generate an image from the prompt OR if it is empty, generate a prompt and image from available text';
+    const genLoading = this.state.genLoading;
+    const editLoading = this.state.editLoading;
+
+    document.onmouseup = document.onkeyup = document.onselectionchange = function () {
+      if (document.activeElement.id === "editorWindow") { //Only the editor window can select and capture text
+        //document.getElementById("selectedText").value = getSelectionText();
+        this.highlightedText = getSelectionText();
+        document.getElementById("selectedText").value = this.highlightedText;
+      }
+    }
+
     return (
       <div className="App">
 
 
         <header className="App-header">
-          <ReactNotifications className="Notification" /> {/* TODO: update notification to be nicer or change to loading symbol */}
+          <ReactNotifications className="Notification" /> {/* TODO: update notification to be nicer */}
+          <div className="genLoading">
+            {genLoading &&    //Conditional rendering
+              <Audio
+                height="70"
+                width="70"
+                color='orange'
+              ></Audio>
+            }
+          </div>
+
           <div className="App-subheader">
             <h1 className="Title"><a href="https://github.com/stephentambussi/StoryGenius">StoryGenius</a></h1>
             <h2 className="SubTitle">An AI-Powered Story Creator</h2>
           </div>
-          <Button sx={{ bgcolor: 'darkorange', }} variant="contained" onClick={() => this.setState({ helpOpen: !this.state.helpOpen })}>Help</Button>
+          <Button sx={{ bgcolor: 'darkorange', marginRight: '2%', }} variant="contained" onClick={() => this.setState({ helpOpen: !this.state.helpOpen })}>Help</Button>
         </header>
 
 
@@ -130,42 +156,36 @@ class App extends React.Component {
 
           <div className="StoryPartition">
 
-            <Tooltip TransitionComponent={Zoom} title={finalizeTooltip}>
-              <Button sx={{ color: 'white', bgcolor: 'green', marginBottom: 45, marginLeft: 1, marginRight: 5, marginTop: 1, padding: 2, }}
-                variant="contained" onClick={() => this.setState({ finalize: !this.state.finalize })}>Finalize</Button>
-            </Tooltip>
 
-            <div className="CenterPartition">
+            <div className="TopPartition">
+
+              <div className="finalizeBtn">
+                <Tooltip TransitionComponent={Zoom} title={finalizeTooltip}>
+                  <Button sx={{ color: 'white', bgcolor: 'green', padding: 2, }}
+                    variant="contained" onClick={() => this.setState({ finalize: !this.state.finalize })}>Finalize</Button>
+                </Tooltip>
+              </div>
 
               <TextField label="Story Title" fullWidth inputProps={{ min: 0, style: { textAlign: 'center', fontSize: 30 } }} size="small"
                 sx={{
                   bgcolor: 'white',
-                  marginTop: 2,
-                  maxWidth: '70%',
+                  maxWidth: '100%',
                 }}
                 value={this.state.storyTitle}
                 onChange={(event) => this.setState({ storyTitle: event.target.value })}></TextField>
 
-              <div className="ImageBox">
 
-                <h2 className="ImageBoxHeader">Image</h2>
+              <div className="GenerationButtons">
 
-                <div className="frame">
-                  {/* TODO: Add image here after being generated */}
-                </div>
+                <h2 className="generationButtonsHeader">Generation Options</h2>
 
-                <div className="promptArea">
-                  <TextField label="Image Prompt" size="small"
-                    sx={{
-                      marginTop: 1,
-                      bgcolor: 'white',
-                      width: 600,
-                      maxWidth: '60%',
-                    }}
-                    value={this.state.imagePrompt}
-                    onChange={(event) => this.setState({ imagePrompt: event.target.value })}></TextField>
-                  <Tooltip TransitionComponent={Zoom} title={imagePromptGenTooltip}>
-                    <Button size="small" sx={{ color: 'white', bgcolor: 'gray', marginTop: 1, }} variant="contained" onClick={() => this.setState({ imagePromptGen: !this.state.imagePromptGen })}>Generate</Button>
+                <div className="GenerationButtonsSub">
+                  <Tooltip TransitionComponent={Zoom} title={ideaGenTooltip}>
+                    <Button sx={{ color: 'white', bgcolor: 'gray', marginRight: 1, }} variant="contained" onClick={() => this.setState({ ideaGen: !this.state.ideaGen })}>Idea</Button>
+                  </Tooltip>
+
+                  <Tooltip TransitionComponent={Zoom} title={storyGenTooltip}>
+                    <Button sx={{ color: 'white', bgcolor: 'gray', marginLeft: 1, }} variant="contained" onClick={() => this.setState({ completeGen: !this.state.completeGen })}>Story</Button>
                   </Tooltip>
                 </div>
 
@@ -173,17 +193,28 @@ class App extends React.Component {
 
             </div>
 
-            <div className="GenerationButtons">
+            <div className="ImageBox">
 
-              <h2 className="ImageBoxHeader">Generative Options</h2>
+              <h2 className="ImageBoxHeader">Image</h2>
 
-              <Tooltip TransitionComponent={Zoom} title={ideaGenTooltip}>
-                <Button sx={{ color: 'white', bgcolor: 'gray', marginTop: 1, marginRight: 1, }} variant="contained" onClick={() => this.setState({ ideaGen: !this.state.ideaGen })}>Idea</Button>
-              </Tooltip>
+              <div className="frame">
+                {/* TODO: Add image here after being generated */}
+              </div>
 
-              <Tooltip TransitionComponent={Zoom} title={storyGenTooltip}>
-                <Button sx={{ color: 'white', bgcolor: 'gray', marginTop: 1, marginRight: 1, }} variant="contained" onClick={() => this.setState({ completeGen: !this.state.completeGen })}>Story</Button>
-              </Tooltip>
+              <div className="promptArea">
+                <TextField label="Image Prompt" size="small"
+                  sx={{
+                    marginTop: 1,
+                    bgcolor: 'white',
+                    width: 512,
+                    maxWidth: '70%',
+                  }}
+                  value={this.state.imagePrompt}
+                  onChange={(event) => this.setState({ imagePrompt: event.target.value })}></TextField>
+                <Tooltip TransitionComponent={Zoom} title={imagePromptGenTooltip}>
+                  <Button size="small" sx={{ color: 'white', bgcolor: 'gray', marginTop: 1, }} variant="contained" onClick={() => this.setState({ imagePromptGen: !this.state.imagePromptGen })}>Generate</Button>
+                </Tooltip>
+              </div>
 
             </div>
 
@@ -196,7 +227,7 @@ class App extends React.Component {
 
               <div className="UserEditor">
                 <h2 className="UserEditorHeader">Editor</h2>
-                <TextField fullWidth label="Write your story here" size="small" multiline={true} rows="8"
+                <TextField id="editorWindow" fullWidth label="Write your story here" size="small" multiline={true} rows="8"
                   sx={{
                     bgcolor: 'white',
                   }}
@@ -205,6 +236,7 @@ class App extends React.Component {
                     this.setState({ userEditorText: event.target.value });
                     this.setState({ storytext_cnt: Math.floor(event.target.value.length / 4) }); /* TODO: make this word count and calculate max word count allowed based on tokens? */
                   }}></TextField>
+
               </div>
 
               <div className="AIEditor">
@@ -224,12 +256,14 @@ class App extends React.Component {
             <div className="EditingOptions">
 
               <h2 className="OptionsHeader">Editing Options</h2>
-              <p className="OptionsSubHeader">Instructions: <i>highlight text in the 'Editor' window, enter a command below, and then press the EDIT button.</i></p>
+              <p className="OptionsSubHeader"><b>Instructions: </b><i>highlight text in the 'Editor' window, enter a command below, and then press the EDIT button.</i></p>
+
+              <textarea disabled className="selectedText" id="selectedText" rows="3" cols="100" placeholder="Highlighted text"></textarea>
 
               <div className="CommandPrompt">
                 <TextField fullWidth label="Command" size="small"
                   sx={{
-                    maxWidth: '85%',
+                    maxWidth: '50%',
                     bgcolor: 'white',
                     marginBottom: 2,
                   }}
@@ -247,17 +281,6 @@ class App extends React.Component {
             </div>
 
             <label htmlFor="story_textbox" name="StoryTextBoxTitle"><b>Tokens: {this.state.storytext_cnt} / {this.state.tokens_remaining}</b></label>
-
-            <Highlightable ranges={this.props.ranges.get('1', new List()).toJS()}
-              enabled={true}
-              style={{ textAlign: 'left' }}
-              onTextHighlighted={this.onTextHighlighted.bind(this)}
-              id={'1'}
-              highlightStyle={{
-                backgroundColor: '#ffcc80'
-              }}
-              text={'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'}
-            />
 
           </div>
 
