@@ -5,7 +5,6 @@
 */
 import './App.css';
 import React from 'react';
-import { ReactNotifications, Store } from 'react-notifications-component';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import Zoom from '@mui/material/Zoom';
@@ -17,10 +16,6 @@ import DialogTitle from '@mui/material/DialogTitle';
 import TextField from '@mui/material/TextField';
 import { RotatingLines } from 'react-loader-spinner';
 import 'animate.css/animate.min.css';
-/*  TODOs
-*   - see todos in code
-*   - Include notification only for errors like: missing api key, etc.
-*/
 
 /*  Implementation notes:
 *   Everything that makes StoryGenius work is in this file such as the UI components, logic, and API calls. 
@@ -44,14 +39,13 @@ class App extends React.Component {
 
     //State variables
     this.state = {
-      tokens_remaining: 4000, //Change depending on engine -- current engine is text-davinci-002 (best one)
       storyTitle: '',
       userEditorText: '',
       aiEditorText: '',
-      storytext_cnt: 0,
       imagePrompt: '',
       helpOpen: false,
       editPrompt: '',
+
       finalize: false, //MAYBE change to enum?
       genLoading: false, //Variables to enable rendering of loading icons
       editLoading: false,
@@ -65,63 +59,225 @@ class App extends React.Component {
       ideaGen: 1,
       completeGen: 2,
       editGen: 3
-    }
+    };
 
     //Fun variables
     this.highlightedText = "";
 
+    //Method bindings
+    this.getAIResponse = this.getAIResponse.bind(this);
+
   }
 
-  //Method to use OpenAI API to call ChatGPT (GPT3.5) and DALL-E 2
-  async getAIResponse(button_num) {
+  //Method to handle the image generation cases
+  async handleImageGen() {
     const { Configuration, OpenAIApi } = require("openai");
     const configuration = new Configuration({
-      //Insert your OpenAI API Key here to try this out
-      //apiKey: 'API Key',
       apiKey: process.env.REACT_APP_OPENAI_API_KEY,
     });
+
     const openai = new OpenAIApi(configuration);
 
-    /*
-    if (this.state.userEditorText === '') {
-      alert('TODO: make error');
-      return;
-    }
-    */
+    var prompt; //Prompt variable
+    var response;
 
-    //TODO: conditionals for specific button presses and image generation
+    //Generate an image prompt from available text
+    if (this.state.imagePrompt === '') {
+      //Error case when there is nothing for GPT to go off of
+      if (this.state.storyTitle === '' && this.state.userEditorText === '') {
+        alert('ERROR: please enter some text in the Story Title or Editor Windows.');
+        return;
+      }
 
-    /* Example chatgpt get response code
-    if(....) {
-      this.setState({genLoading: true})
-      const response = await openai.createChatCompletion({
+      var tempPrompt;
+
+      tempPrompt = "Write me a one sentence image prompt for a text-to-image AI generator based on this text:\n"
+        + this.state.storyTitle + "\n" + this.state.userEditorText;
+
+      this.setState({ genLoading: true })
+
+      response = await openai.createChatCompletion({
         model: "gpt-3.5-turbo",
-        messages: [{role: "user", content: "Prompt here"}],
+        messages: [
+          { role: "user", content: tempPrompt },
+        ],
       });
-      this.setState({genLoading: false})
-      this.setState({storyTitle: this.state.storyTitle + response.data.choices[0].message});
+      this.setState({ imagePrompt: response.data.choices[0].message.content });
+      prompt = response.data.choices[0].message.content
     }
-    */
 
-    //DALLE generate code
-    //TODO: update this conditional so that it handles all cases outlined in planning document
-    if (button_num === this.Buttons.imageGen) {
-      //console.log(button_num);
-      this.setState({genLoading: true});
-      const response = await openai.createImage({
-        prompt: this.state.imagePrompt,
+    else {
+      this.setState({ genLoading: true })
+      prompt = this.state.imagePrompt;
+    }
+
+    response = await openai.createImage({
+      prompt: prompt,
+      n: 1, //num of images to generate
+      size: "256x256",
+    });
+
+    this.setState({ imageURL: response.data.data[0].url });
+    this.setState({ genLoading: false });
+  }
+
+  //This method handles the idea and story generation cases
+  async handleIdeaOrStoryGen(case_num) {
+    const { Configuration, OpenAIApi } = require("openai");
+    const configuration = new Configuration({
+      apiKey: process.env.REACT_APP_OPENAI_API_KEY,
+    });
+
+    const openai = new OpenAIApi(configuration);
+
+    var prompt; //Prompt variable
+
+    //For random genre generating
+    const min = 1;
+    const max = 7; //Number of genres possible = length of genres array
+    //Generates random int number
+    const rand = Math.floor(min + Math.random() * (max - min));
+    const genres = ["Mystery", "Science Fiction", "Horror", "Romance", "Fantasy", "Comedy", "True Crime"];
+
+    //Idea Generation case
+    if (case_num === 0) {
+
+      prompt = "Give me one idea for a short story in two sentences, the genre is " + genres[rand] + " and include a potential title.";
+
+      console.log(prompt);
+
+      this.setState({ genLoading: true });
+
+      var response = await openai.createChatCompletion({
+        model: "gpt-3.5-turbo",
+        messages: [
+          { role: "user", content: prompt },
+        ],
+      });
+      this.setState({ aiEditorText: response.data.choices[0].message.content });
+
+      prompt = "Write me a one sentence image prompt for a text-to-image AI generator based on this text:\n" + response.data.choices[0].message.content;
+      console.log(prompt);
+
+      response = await openai.createChatCompletion({
+        model: "gpt-3.5-turbo",
+        messages: [
+          { role: "user", content: prompt },
+        ],
+      });
+      this.setState({ imagePrompt: response.data.choices[0].message.content });
+
+      prompt = response.data.choices[0].message.content;
+
+      response = await openai.createImage({
+        prompt: prompt,
         n: 1, //num of images to generate
         size: "256x256",
       });
+
       this.setState({ imageURL: response.data.data[0].url });
       this.setState({ genLoading: false });
     }
+
+    //Complete story generation case
+    else if (case_num === 1) {
+      prompt = "Write me a short story. The genre is " + genres[rand] + " and include the title.";
+
+      console.log(prompt);
+
+      this.setState({ genLoading: true });
+
+      var response = await openai.createChatCompletion({
+        model: "gpt-3.5-turbo",
+        messages: [
+          { role: "user", content: prompt },
+        ],
+      });
+      this.setState({ aiEditorText: response.data.choices[0].message.content });
+
+      prompt = "Write me a one sentence image prompt for a text-to-image AI generator based on this text:\n" + response.data.choices[0].message.content;
+      console.log(prompt);
+
+      response = await openai.createChatCompletion({
+        model: "gpt-3.5-turbo",
+        messages: [
+          { role: "user", content: prompt },
+        ],
+      });
+      this.setState({ imagePrompt: response.data.choices[0].message.content });
+
+      prompt = response.data.choices[0].message.content;
+
+      response = await openai.createImage({
+        prompt: prompt,
+        n: 1, //num of images to generate
+        size: "256x256",
+      });
+
+      this.setState({ imageURL: response.data.data[0].url });
+      this.setState({ genLoading: false })
+    }
+
   }
+
+  //Method to handle the API calls for the editing functionality
+  async handleEditGen() {
+    const { Configuration, OpenAIApi } = require("openai");
+    const configuration = new Configuration({
+      apiKey: process.env.REACT_APP_OPENAI_API_KEY,
+    });
+
+    const openai = new OpenAIApi(configuration);
+
+    var prompt; //Prompt variable
+
+    this.setState({ editLoading: true });
+
+    //This is probably a bad way to do this, but it works.
+    prompt = this.state.editPrompt + "\n" + document.getElementById("selectedText").value;
+
+    console.log(prompt);
+
+    var response = await openai.createChatCompletion({
+      model: "gpt-3.5-turbo",
+      messages: [
+        { role: "user", content: prompt },
+      ],
+    });
+
+    this.setState({ aiEditorText: response.data.choices[0].message.content });
+    this.setState({ editLoading: false });
+
+  }
+
+  //Overarching method for easy code reading
+  getAIResponse(button_num) {
+    if (button_num === this.Buttons.imageGen) {
+      console.log(button_num);
+      this.handleImageGen();
+    }
+
+    if (button_num === this.Buttons.ideaGen) {
+      console.log(button_num);
+      this.handleIdeaOrStoryGen(0);
+    }
+
+    if (button_num === this.Buttons.completeGen) {
+      console.log(button_num);
+      this.handleIdeaOrStoryGen(1);
+    }
+
+    if (button_num === this.Buttons.editGen) {
+      console.log(button_num);
+      this.handleEditGen();
+    }
+  }
+
 
   render() {
     const finalizeTooltip = 'Collect the current story title, image, and text in the Editor window and download to PDF';
-    const ideaGenTooltip = 'Create a story idea. NOTE: this will clear any previous generations';
-    const storyGenTooltip = 'Generate a complete story. NOTE: this will clear any previous generations';
+    const ideaGenTooltip = 'Generate a story idea. NOTE: this will clear any previous generations in the AI Output and Image windows';
+    const storyGenTooltip = 'Generate a complete story. NOTE: this will clear any previous generations in the AI Output and Image windows';
     const imagePromptGenTooltip = 'Generate an image from the prompt OR if it is empty, generate a prompt and image from available text';
     //Booleans for loading icons
     const genLoading = this.state.genLoading;
@@ -152,7 +308,7 @@ class App extends React.Component {
 
 
         <header className="App-header">
-          <ReactNotifications className="Notification" /> {/* TODO: update notification to be nicer */}
+
           <div className="genLoading">
             {genLoading &&    //Conditional rendering
               <div>
@@ -227,7 +383,7 @@ class App extends React.Component {
                       }}
                       variant="contained"
                       onClick={() => {
-                        console.log(this.Buttons.ideaGen);
+                        this.getAIResponse(this.Buttons.ideaGen);
                       }}>Idea</Button>
                   </Tooltip>
 
@@ -240,7 +396,7 @@ class App extends React.Component {
                       }}
                       variant="contained"
                       onClick={() => {
-                        console.log(this.Buttons.completeGen);
+                        this.getAIResponse(this.Buttons.completeGen);
                       }}>Story</Button>
                   </Tooltip>
                 </div>
@@ -278,7 +434,6 @@ class App extends React.Component {
                     }}
                     variant="contained"
                     onClick={() => {
-                      //console.log(this.Buttons.imageGen)
                       this.getAIResponse(this.Buttons.imageGen);
                     }}>Generate</Button>
                 </Tooltip>
@@ -305,7 +460,7 @@ class App extends React.Component {
                     //Save results into session storage object for semi-persistence
                     sessionStorage.setItem("editorAutosave", event.target.value);
 
-                    this.setState({ storytext_cnt: Math.floor(event.target.value.length / 4) }); /* TODO: make this word count and calculate max word count allowed based on tokens? */
+                    /* TODO: add word count and calculate max word count allowed based on tokens */
                   }}></TextField>
 
               </div>
@@ -349,7 +504,7 @@ class App extends React.Component {
                   }}
                   variant="contained"
                   onClick={() => {
-                    console.log(this.Buttons.editGen);
+                    this.getAIResponse(this.Buttons.editGen);
                   }}>Edit</Button>
                 <div className="editLoading">
                   {editLoading &&
@@ -371,8 +526,6 @@ class App extends React.Component {
               <p className="ExamplesSubHeaderT"><i>"Add an ending to this story."</i></p>
 
             </div>
-
-            <label htmlFor="story_textbox" name="StoryTextBoxTitle"><b>Tokens: {this.state.storytext_cnt} / {this.state.tokens_remaining}</b></label>
 
           </div>
 
