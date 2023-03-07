@@ -49,7 +49,7 @@ class App extends React.Component {
       genLoading: false, //Variables to enable rendering of loading icons
       editLoading: false,
       imageURL: '',
-      // images: [], //TODO: this is a stretch goal, but save images to array and allow user to go back to previously generated ones
+      // images: [], //This is a stretch goal, but save images to array and allow user to go back to previously generated ones
     };
 
     //Enums for button
@@ -101,23 +101,35 @@ class App extends React.Component {
           { role: "user", content: tempPrompt },
         ],
       });
+
       this.setState({ imagePrompt: response.data.choices[0].message.content });
       prompt = response.data.choices[0].message.content
+
+      response = await openai.createImage({
+        prompt: prompt,
+        n: 1, //num of images to generate
+        size: "256x256",
+      });
+
+      this.setState({ imageURL: response.data.data[0].url });
+      console.log(response.data.data[0].url);
+      this.setState({ genLoading: false });
     }
 
     else {
       this.setState({ genLoading: true })
       prompt = this.state.imagePrompt;
+
+      response = await openai.createImage({
+        prompt: prompt,
+        n: 1, //num of images to generate
+        size: "256x256",
+      });
+
+      this.setState({ imageURL: response.data.data[0].url });
+      console.log(response.data.data[0].url);
+      this.setState({ genLoading: false });
     }
-
-    response = await openai.createImage({
-      prompt: prompt,
-      n: 1, //num of images to generate
-      size: "256x256",
-    });
-
-    this.setState({ imageURL: response.data.data[0].url });
-    this.setState({ genLoading: false });
   }
 
 
@@ -177,6 +189,7 @@ class App extends React.Component {
       });
 
       this.setState({ imageURL: response.data.data[0].url });
+      console.log(response.data.data[0].url);
       this.setState({ genLoading: false });
     }
 
@@ -216,9 +229,9 @@ class App extends React.Component {
       });
 
       this.setState({ imageURL: response.data.data[0].url });
+      console.log(response.data.data[0].url);
       this.setState({ genLoading: false })
     }
-
   }
 
 
@@ -285,6 +298,9 @@ class App extends React.Component {
     const genLoading = this.state.genLoading;
     const editLoading = this.state.editLoading;
 
+    const imageURL = this.state.imageURL;
+    //TODO: figure out how to get image to render with react-pdf
+
     const styles = StyleSheet.create({
       body: {
         paddingTop: 35,
@@ -323,7 +339,8 @@ class App extends React.Component {
           <Text style={styles.title}>
             {this.state.storyTitle}
           </Text>
-          <Image style={styles.image} src={this.state.imageURL}></Image>
+          <Image style={styles.image} src={imageURL}>
+          </Image>
           <Text style={styles.text}>
             {this.state.userEditorText}
           </Text>
@@ -403,7 +420,7 @@ class App extends React.Component {
                 <PDFDownloadLink document={storyDocument} fileName="storygenius.pdf">
                   <Tooltip TransitionComponent={Zoom} title={finalizeTooltip}>
                     <Button sx={{ color: 'white', bgcolor: 'green', padding: 2, }}
-                      variant="contained" onClick={() => {}}>Finalize</Button>
+                      variant="contained" onClick={() => { }}>Finalize</Button>
                   </Tooltip>
                 </PDFDownloadLink>
 
@@ -511,8 +528,6 @@ class App extends React.Component {
                     this.setState({ userEditorText: event.target.value });
                     //Save results into session storage object for semi-persistence
                     sessionStorage.setItem("editorAutosave", event.target.value);
-
-                    /* TODO: add word count and calculate max word count allowed based on tokens */
                   }}></TextField>
 
               </div>
