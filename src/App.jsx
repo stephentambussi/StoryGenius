@@ -22,6 +22,13 @@ import 'animate.css/animate.min.css';
 *   Everything that makes StoryGenius work is in this file such as the UI components, logic, and API calls. 
 *   App.css includes styling to make it look the way I wanted it to. There is definitely a better way to do
 *   all of this, but it works.
+*
+*   NOTE: this webapp has only been tested on Edge (Chromium) so it is only guaranteed to work with Edge
+*   and Chrome. Any other web browsers may encounter compatibility issues with the required dependencies.
+*   REQUIRED BROWSER EXTENSION: https://chrome.google.com/webstore/detail/allow-cors-access-control/lhobafahddgcelffkeicbaginigeejlf/related?hl=en
+*     - This browser extension is to circumvent the blocked by CORS policy error: No 'Access-Control-Allow-Origin' header is present on the request resource
+*       and to allow the DALLE image be added to the pdf
+*     - There is definitely a legitimate way to do this, but I was strapped for time so this hack works
 */
 
 //Gets and returns the selected/highlighted text in the current window 
@@ -298,9 +305,6 @@ class App extends React.Component {
     const genLoading = this.state.genLoading;
     const editLoading = this.state.editLoading;
 
-    const imageURL = this.state.imageURL;
-    //TODO: figure out how to get image to render with react-pdf
-
     const styles = StyleSheet.create({
       body: {
         paddingTop: 35,
@@ -339,7 +343,7 @@ class App extends React.Component {
           <Text style={styles.title}>
             {this.state.storyTitle}
           </Text>
-          <Image style={styles.image} src={imageURL}>
+          <Image style={styles.image} src={this.state.imageURL}>
           </Image>
           <Text style={styles.text}>
             {this.state.userEditorText}
