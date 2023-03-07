@@ -5,6 +5,7 @@
 */
 import './App.css';
 import React from 'react';
+import { Page, Text, Image, Document, StyleSheet, PDFDownloadLink } from '@react-pdf/renderer';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import Zoom from '@mui/material/Zoom';
@@ -45,8 +46,6 @@ class App extends React.Component {
       imagePrompt: '',
       helpOpen: false,
       editPrompt: '',
-
-      finalize: false, //MAYBE change to enum?
       genLoading: false, //Variables to enable rendering of loading icons
       editLoading: false,
       imageURL: '',
@@ -66,8 +65,8 @@ class App extends React.Component {
 
     //Method bindings
     this.getAIResponse = this.getAIResponse.bind(this);
-
   }
+
 
   //Method to handle the image generation cases
   async handleImageGen() {
@@ -121,6 +120,7 @@ class App extends React.Component {
     this.setState({ genLoading: false });
   }
 
+
   //This method handles the idea and story generation cases
   async handleIdeaOrStoryGen(case_num) {
     const { Configuration, OpenAIApi } = require("openai");
@@ -131,6 +131,7 @@ class App extends React.Component {
     const openai = new OpenAIApi(configuration);
 
     var prompt; //Prompt variable
+    var response; //API call variable
 
     //For random genre generating
     const min = 1;
@@ -148,7 +149,7 @@ class App extends React.Component {
 
       this.setState({ genLoading: true });
 
-      var response = await openai.createChatCompletion({
+      response = await openai.createChatCompletion({
         model: "gpt-3.5-turbo",
         messages: [
           { role: "user", content: prompt },
@@ -187,7 +188,7 @@ class App extends React.Component {
 
       this.setState({ genLoading: true });
 
-      var response = await openai.createChatCompletion({
+      response = await openai.createChatCompletion({
         model: "gpt-3.5-turbo",
         messages: [
           { role: "user", content: prompt },
@@ -220,6 +221,7 @@ class App extends React.Component {
 
   }
 
+
   //Method to handle the API calls for the editing functionality
   async handleEditGen() {
     const { Configuration, OpenAIApi } = require("openai");
@@ -250,6 +252,7 @@ class App extends React.Component {
 
   }
 
+
   //Overarching method for easy code reading
   getAIResponse(button_num) {
     if (button_num === this.Buttons.imageGen) {
@@ -273,7 +276,6 @@ class App extends React.Component {
     }
   }
 
-
   render() {
     const finalizeTooltip = 'Collect the current story title, image, and text in the Editor window and download to PDF';
     const ideaGenTooltip = 'Generate a story idea. NOTE: this will clear any previous generations in the AI Output and Image windows';
@@ -282,6 +284,52 @@ class App extends React.Component {
     //Booleans for loading icons
     const genLoading = this.state.genLoading;
     const editLoading = this.state.editLoading;
+
+    const styles = StyleSheet.create({
+      body: {
+        paddingTop: 35,
+        paddingBottom: 65,
+        paddingHorizontal: 35,
+      },
+      title: {
+        fontSize: 24,
+        textAlign: 'center',
+        fontFamily: 'Times-Roman'
+      },
+      text: {
+        margin: 12,
+        fontSize: 14,
+        textAlign: 'justify',
+        fontFamily: 'Times-Roman'
+      },
+      image: {
+        marginVertical: 15,
+        marginHorizontal: 100,
+      },
+      header: {
+        fontSize: 12,
+        marginBottom: 20,
+        textAlign: 'center',
+        color: 'grey',
+      },
+    });
+
+    const storyDocument = (
+      <Document>
+        <Page style={styles.body}>
+          <Text style={styles.header} fixed>
+            Created with StoryGenius
+          </Text>
+          <Text style={styles.title}>
+            {this.state.storyTitle}
+          </Text>
+          <Image style={styles.image} src={this.state.imageURL}></Image>
+          <Text style={styles.text}>
+            {this.state.userEditorText}
+          </Text>
+        </Page>
+      </Document>
+    );
 
     if (sessionStorage.getItem("storyTitleAutosave")) {
       this.state.storyTitle = sessionStorage.getItem("storyTitleAutosave");
@@ -351,10 +399,14 @@ class App extends React.Component {
             <div className="TopPartition">
 
               <div className="finalizeBtn">
-                <Tooltip TransitionComponent={Zoom} title={finalizeTooltip}>
-                  <Button sx={{ color: 'white', bgcolor: 'green', padding: 2, }}
-                    variant="contained" onClick={() => this.setState({ finalize: !this.state.finalize })}>Finalize</Button>
-                </Tooltip>
+
+                <PDFDownloadLink document={storyDocument} fileName="storygenius.pdf">
+                  <Tooltip TransitionComponent={Zoom} title={finalizeTooltip}>
+                    <Button sx={{ color: 'white', bgcolor: 'green', padding: 2, }}
+                      variant="contained" onClick={() => {}}>Finalize</Button>
+                  </Tooltip>
+                </PDFDownloadLink>
+
               </div>
 
               <TextField label="Story Title" fullWidth inputProps={{ min: 0, style: { textAlign: 'center', fontSize: 30 } }} size="small"
