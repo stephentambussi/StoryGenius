@@ -24,9 +24,12 @@ Created as a final project for COEN396.
 
 ## How to run
 ### Requirements
-TODO
+* TODO
+---
+1. TODO
 
 ## Limitations
-TODO
+* TODO
 
 ## Future Improvements
+* TODO
