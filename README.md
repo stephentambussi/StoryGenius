@@ -6,13 +6,13 @@ Created as a final project for COEN396.
 ![storygenius_screenshot](public/storygenius_screenshot.png)
 
 ## Features
-**Story Idea Generation**
-Rapidly generate ideas for stories with visual inspiration. 
-**Complete Story Generation**
-Create an entire story using AI.
-**AI Editing**
-Use AI to rewrite sentences or suggest edits.
-**Download to PDF**
+**Story Idea Generation** \
+Rapidly generate ideas for stories with visual inspiration. \
+**Complete Story Generation** \
+Create an entire story using AI. \
+**AI Editing** \
+Use AI to rewrite sentences or suggest edits. \
+**Download to PDF** \
 Download the finished story as a PDF.
 
 ## Technologies Used
