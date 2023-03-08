@@ -85,6 +85,10 @@ a:active {
   justify-content: center;
 }
 
+.helpGuideHeader {
+  font-size: calc(5px + 2vmin);
+}
+
 .StoryTemplate {
   background-color: #f2eecb;
   border: 3px solid rgb(80, 78, 78);

@@ -27,7 +27,7 @@ import 'animate.css/animate.min.css';
 *   and Chrome. Any other web browsers may encounter compatibility issues with the required dependencies.
 *   REQUIRED BROWSER EXTENSION: https://chrome.google.com/webstore/detail/allow-cors-access-control/lhobafahddgcelffkeicbaginigeejlf/related?hl=en
 *     - This browser extension is to circumvent the blocked by CORS policy error: No 'Access-Control-Allow-Origin' header is present on the request resource
-*       and to allow the DALLE image be added to the pdf
+*       that prevented the DALLE image from being added to the pdf using the react-pdf package
 *     - There is definitely a legitimate way to do this, but I was strapped for time so this hack works
 */
 
@@ -402,7 +402,45 @@ class App extends React.Component {
           <DialogTitle>Usage Guide</DialogTitle>
           <DialogContent dividers={true}>
             <DialogContentText>
-              TODO: fill out this usage guide
+              <div className="helpGuideHeader">
+                <b><u>Generation Options</u></b>
+              </div>
+              <div className="helpGuideText">
+                <b>IDEA: </b>This button generates a random idea for a story. The idea is composed of a title, a two sentence
+                summary, and an image relevant to the story idea. This will clear any previous generations in the
+                'AI Output' and 'Image' windows.
+              </div>
+              <div className="helpGuideText">
+                <b>STORY: </b>This button generates a random short story. The story is composed of a title, multi-paragraph body,
+                and an image relevant to the story. This will clear any previous generations in the
+                'AI Output' and 'Image' windows.
+              </div>
+              <div className="helpGuideHeader">
+                <b><u>Image Generation</u></b>
+              </div>
+              <div className="helpGuideText">
+                Pressing the <b>GENERATE</b> button in the 'Image' window provides a few different options. If the 'Image Prompt' field 
+                is empty, then the system will generate a prompt for the image generator from the available text in the 'Story Title'
+                and 'Editor' windows. NOTE: both fields cannot be empty when pressing the button or an error will be returned. 
+                If the 'Image Prompt' field is not empty, then the system simply passes the current prompt to the image generator.
+                Pressing this button will clear any previous generations in the 'Image' window.
+              </div>
+              <div className="helpGuideHeader">
+                <b><u>Editing</u></b>
+              </div>
+              <div className="helpGuideText">
+                To edit your story using AI generation, simply highlight the text in the 'Editor' window, enter a command into the 'Command'
+                field, and press the <b>EDIT</b> button. The edit will be in the 'AI Output' window. This will clear any 
+                previous generations in the 'AI Output' window.
+              </div>
+              <div className="helpGuideHeader">
+                <b><u>Download to PDF</u></b>
+              </div>
+              <div className="helpGuideText">
+                Once you have completed your story, you can download it as a PDF using the <b>FINALIZE</b> button. Pressing this button will
+                collect the text in the 'Story Title' and 'Editor' windows, along with the current image in the 'Image' window and convert 
+                them to PDF format.
+              </div>
             </DialogContentText>
           </DialogContent>
           <DialogActions>
