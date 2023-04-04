@@ -1,5 +1,5 @@
 # StoryGenius
-StoryGenius is a tool that helps writers craft their short stories by using the latest 
+StoryGenius is a tool that helps authors craft their short stories by using the latest 
 generative AI technologies. \
 Created as a final project for COEN396.
 
